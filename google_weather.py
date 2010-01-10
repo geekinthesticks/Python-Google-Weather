@@ -10,15 +10,6 @@ WEATHER_XML = '~/devel/python_google_weather/google_weather.xml'
 
 # Images.
 # http://www.google.co.uk/ig/images/weather/sunny.gif
-city = []
-days = []
-low = []
-high = []
-conditions = []
-icons = []
-
-
-
 
 def download_icons(icon_list):
     """
@@ -34,6 +25,12 @@ def download_icons(icon_list):
 
 
 def parse_forecast_data(dom):
+    city = []
+    days = []
+    low = []
+    high = []
+    conditions = []
+    icons = []
     forecast_data = {}
     conditions_list = dom.getElementsByTagName('forecast_conditions')
     forecast_info = dom.getElementsByTagName('forecast_information')
@@ -77,17 +74,8 @@ def parse_forecast_data(dom):
 
     return forecast_data
         
-#print element.getAttribute('day_of_week data')
-#for element in conditions:
-#    print element.toxml()
-#    print element.attributes.keys()
-    # days.append(day.attributes['high'].value)
-
-#print days
 
 def main():
-
-    print 'Hello!'
     # Check the local xml file.
     if os.path.exists(WEATHER_XML):    
         # Check its time stamp.
@@ -95,6 +83,7 @@ def main():
         # file_time = time.localtime(statinfo.st_mtime)
 
         # Compare file time to current time.
+        # If it's more than 4 hrs old grab a new forecast.
         if (time.localtime() > (statinfo.st_mtime + (4*3600))):
             print 'File too old.'
             # Open the url and save to a file.
