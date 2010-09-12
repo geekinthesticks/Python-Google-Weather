@@ -19,6 +19,7 @@ class googleWeather:
         self.lang = lang
         self.forecast = {}
         self.expires = expires
+        self.imagedir = "./"
 
     def setLocation(self, location):
         """
@@ -39,6 +40,12 @@ class googleWeather:
         """
         self.lang = lang
 
+    def setImageLocation(self, directory):
+        """
+
+        """
+        self.imagedir = directory
+
     def fahrenheit_to_centigrade(self, temp):
         """
         Celsius = (Temp_in_Fahrenheit - 32) / (9.0/5.0)
@@ -58,9 +65,9 @@ class googleWeather:
         """
         for icon in icon_list:
             (dir, file) = os.path.split(icon)
-            if not os.path.exists(IMAGES_PATH + '%s' % file):
+            if not os.path.exists(self.imagedir + '%s' % file):
                 urllib.urlretrieve('%s%s' % (GOOGLE_IMAGES_URL, icon), \
-                              '%s%s' % (IMAGES_PATH, file))
+                              '%s%s' % (self.imagedir, file))
 
 
     def parse_forecast_data(self, dom):
@@ -91,10 +98,10 @@ class googleWeather:
                 days.append(day.getAttribute('data'))
 
             for low_temp in forecast_low:
-                low.append(self.fahrenheit_to_centigrade(low_temp.getAttribute('data')))
+                low.append(low_temp.getAttribute('data'))
 
             for high_temp in forecast_high:
-                high.append(self.fahrenheit_to_centigrade(high_temp.getAttribute('data')))
+                high.append(high_temp.getAttribute('data'))
 
             for condition in forecast_condition:
                 conditions.append(condition.getAttribute('data'))
@@ -121,7 +128,8 @@ class googleWeather:
         # Check the local xml file.
 
        # We need to url encode the query params.
-        params = {'postcode' : self.postcode}
+        params = {'postcode' : self.postcode,
+                  'hl' : self.lang}
         url = BASE_URL + urllib.urlencode(params)
 
         if os.path.exists(location_xml):
