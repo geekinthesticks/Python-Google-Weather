@@ -10,7 +10,7 @@ GOOGLE_IMAGES_URL = 'http://www.google.co.uk'
 
 
 class googleWeather:
-    def __init__(self, location="Wilkesley", postcode="SY13 4BB", lang="en-gb"):
+    def __init__(self, location="Wilkesley", postcode="SY13 4BB", lang="en-gb", expires=60):
         """
 
         """
@@ -18,6 +18,7 @@ class googleWeather:
         self.postcode = postcode
         self.lang = lang
         self.forecast = {}
+        self.expires = expires
 
     def setLocation(self, location):
         """
@@ -129,9 +130,9 @@ class googleWeather:
             # file_time = time.localtime(statinfo.st_mtime)
 
             # Compare file time to current time.
-            # If it's more than 4 hrs old grab a new forecast.
+            # If it's more than self.expires hours old grab a new forecast.
 
-            if (time.mktime(time.localtime()) > (statinfo.st_mtime + (4*3600))):
+            if (time.mktime(time.localtime()) > (statinfo.st_mtime + (60 * self.expires))):
                 print 'File too old:', location_xml
                 # Open the url and save to a file.
                 urllib.urlretrieve(url, location_xml)
