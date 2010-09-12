@@ -4,33 +4,38 @@ import urllib, os, sys
 from xml.dom import minidom
 import time
 
+BASE_URL = "http://www.google.co.uk/ig/api?weather="
+IMAGES_PATH = '/home/ian/devel/python_google_weather/images/'
+GOOGLE_IMAGES_URL = 'http://www.google.co.uk'
+
+
 class googleWeather:
     def __init__(self, location="Wilkesley", postcode="SY13 4BB", lang="en-gb"):
         """
 
         """
         self.location = location
-        self.postCode = postcode
+        self.postcode = postcode
         self.lang = lang
-
+        self.forecast = {}
 
     def setLocation(self, location):
-    """
+        """
     
-    """
+        """
 
         self.location = location
 
-    def setPostCode(self, PostCode):
-    """
+    def setPostCode(self, postcode):
+        """
 
-    """
-        self.postCode = postCode
+        """
+        self.postcode = postcode
 
     def setLang(self, lang):
-    """
+        """
 
-    """
+        """
         self.lang = lang
 
     def fahrenheit_to_centigrade(self, temp):
@@ -64,7 +69,7 @@ class googleWeather:
         high = []
         conditions = []
         icons = []
-        forecast_data = {}
+
         conditions_list = dom.getElementsByTagName('forecast_conditions')
         forecast_info = dom.getElementsByTagName('forecast_information')
 
@@ -72,7 +77,7 @@ class googleWeather:
             city_data = info.getElementsByTagName('city')
             city.append(city_data[0].getAttribute('data'))
 
-            forecast_data['city'] = city
+            self.forecast['city'] = city
 
         for forecast in conditions_list:
             forecast_days = forecast.getElementsByTagName('day_of_week')
@@ -85,10 +90,10 @@ class googleWeather:
                 days.append(day.getAttribute('data'))
 
             for low_temp in forecast_low:
-                low.append(fahrenheit_to_centigrade(low_temp.getAttribute('data')))
+                low.append(self.fahrenheit_to_centigrade(low_temp.getAttribute('data')))
 
             for high_temp in forecast_high:
-                high.append(fahrenheit_to_centigrade(high_temp.getAttribute('data')))
+                high.append(self.fahrenheit_to_centigrade(high_temp.getAttribute('data')))
 
             for condition in forecast_condition:
                 conditions.append(condition.getAttribute('data'))
@@ -96,26 +101,26 @@ class googleWeather:
             for dayIcon in forecast_icons:
                 icons.append(dayIcon.getAttribute('data'))
 
-        download_icons(icons)
+        self.download_icons(icons)
 
-        forecast_data['days'] = days
-        forecast_data['high'] = high
-        forecast_data['low'] = low
-        forecast_data['conditions'] = conditions
-        forecast_data['icons'] = icons
+        self.forecast['days'] = days
+        self.forecast['high'] = high
+        self.forecast['low'] = low
+        self.forecast['conditions'] = conditions
+        self.forecast['icons'] = icons
 
-        return forecast_data
+        return self.forecast
 
-    def getForecast(self, location, postcode):
+    def getForecast(self):
         """
 
         """
-        location_xml = location + ".xml"
+        location_xml = self.location + ".xml"
 
         # Check the local xml file.
 
        # We need to url encode the query params.
-        params = {'postcode' : postcode}
+        params = {'postcode' : self.postcode}
         url = BASE_URL + urllib.urlencode(params)
 
         if os.path.exists(location_xml):
@@ -137,7 +142,8 @@ class googleWeather:
             print "Getting: %s" % (url)
 
         dom = minidom.parse(location_xml)
-        forecast_data = parse_forecast_data(dom)
-        forecast_data['location'] = location
+        self.forecast = self.parse_forecast_data(dom)
+        self.forecast['location'] = self.location
 
-        return forecast_data
+        return self.forecast
+
