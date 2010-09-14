@@ -10,7 +10,7 @@ IMAGES_PATH = '/home/ian/devel/python_google_weather/images/'
 
 
 class googleWeather:
-    def __init__(self, location="Wilkesley", postcode="SY13 4BB", lang="en-gb", expires=60):
+    def __init__(self, location="Wilkesley", postcode="SY13 4BB", lang="en-gb", expires=60, get_icons=True):
         """
 
         """
@@ -22,6 +22,7 @@ class googleWeather:
         self.imagedir = "./"
         self.base_url = "http://www.google.co.uk/ig/api?weather="
         self.google_images_url = 'http://www.google.co.uk'
+        self.get_icons = get_icons
 
     def setBaseUrl(self, baseurl):
         """
@@ -44,7 +45,13 @@ class googleWeather:
 
         self.location = location
 
-    def setImageDir(self imagedir):
+    def setGetIcons(self, get_icons):
+        """
+
+        """
+        self.get_icons = get_icons
+
+    def setImageDir(self, imagedir):
         """
         Sets the directory where images are downloaded.
         """
@@ -153,7 +160,8 @@ class googleWeather:
             for dayIcon in forecast_icons:
                 icons.append(dayIcon.getAttribute('data'))
 
-        self.download_icons(icons)
+        if self.get_icons:
+            self.download_icons(icons)
 
         self.forecast['days'] = days
         self.forecast['high'] = high
