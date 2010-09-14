@@ -4,9 +4,9 @@ import urllib, os, sys
 from xml.dom import minidom
 import time
 
-BASE_URL = "http://www.google.co.uk/ig/api?weather="
+#BASE_URL =  "http://www.google.co.uk/ig/api?weather="
 IMAGES_PATH = '/home/ian/devel/python_google_weather/images/'
-GOOGLE_IMAGES_URL = 'http://www.google.co.uk'
+#GOOGLE_IMAGES_URL = 'http://www.google.co.uk'
 
 
 class googleWeather:
@@ -20,6 +20,22 @@ class googleWeather:
         self.forecast = {}
         self.expires = expires
         self.imagedir = "./"
+        self.base_url = "http://www.google.co.uk/ig/api?weather="
+        self.google_images_url = 'http://www.google.co.uk'
+
+    def setBaseUrl(self, baseurl):
+        """
+        The url for calling the Google weather api.
+        """
+        self.base_url = baseurl
+
+    def setGoogleImagesUrl(self, google_images_url):
+        """
+        The url where Google stores the images representing
+        different weather conditions.
+        """
+
+        self.google_images_url = google_images_url
 
     def setLocation(self, location):
         """
@@ -28,26 +44,50 @@ class googleWeather:
 
         self.location = location
 
-    def setPostCode(self, postcode):
+    def setImageDir(self imagedir):
+        """
+        Sets the directory where images are downloaded.
         """
 
+        self.imagedir = imagedir
+
+    def setCacheExpireTime(self, expires):
+        """
+        Set the time in minutes that downloaded forecasts are cached.
+        """
+        self.expires = expires
+    
+
+    def setPostCode(self, postcode):
+        """
+        The post code/zip code of the location for which you
+        want to retrieve the weather.
         """
         self.postcode = postcode
 
     def setLang(self, lang):
         """
+        Undocumented function which sets the language of the forecast.
+        This may also change whether the forecast returns measurements
+        in SI units or imperial units.
 
+        Examples are "en-gb", "es"
         """
         self.lang = lang
 
     def setImageLocation(self, directory):
         """
-
+        Sets the directory where downloaded images are stored.
+        If you want to use your own images, set this to the directory
+        cotaining your own images.
         """
         self.imagedir = directory
 
     def fahrenheit_to_centigrade(self, temp):
         """
+        Utility function to convert temperaatures in fahrenheit to
+        Celsius.
+
         Celsius = (Temp_in_Fahrenheit - 32) / (9.0/5.0)
         """
         celsius = int(temp)
@@ -66,11 +106,15 @@ class googleWeather:
         for icon in icon_list:
             (dir, file) = os.path.split(icon)
             if not os.path.exists(self.imagedir + '%s' % file):
-                urllib.urlretrieve('%s%s' % (GOOGLE_IMAGES_URL, icon), \
+                urllib.urlretrieve('%s%s' % (self.google_images_url, icon), \
                               '%s%s' % (self.imagedir, file))
 
 
     def parse_forecast_data(self, dom):
+        """
+        Parse the downloaded xml file to get the forecast data.
+        The data is returned as a nested set of lists.
+        """
         city = []
         days = []
         low = []
@@ -121,7 +165,11 @@ class googleWeather:
 
     def getForecast(self):
         """
+        Download the page corresponding to the location specified
+        and call the function to parse the xml.
 
+        Downloads are cached to avoid repeated queries to Google's
+        server. See setCacheExpireTime. The default is 60 mins.
         """
         location_xml = self.location + ".xml"
 
@@ -130,7 +178,7 @@ class googleWeather:
        # We need to url encode the query params.
         params = {'postcode' : self.postcode,
                   'hl' : self.lang}
-        url = BASE_URL + urllib.urlencode(params)
+        url = self.base_url + urllib.urlencode(params)
 
         if os.path.exists(location_xml):
             # Check its time stamp.
