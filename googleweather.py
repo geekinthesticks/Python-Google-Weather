@@ -4,10 +4,6 @@ import urllib, os, sys
 from xml.dom import minidom
 import time
 
-#BASE_URL =  "http://www.google.co.uk/ig/api?weather="
-IMAGES_PATH = '/home/ian/devel/python_google_weather/images/'
-#GOOGLE_IMAGES_URL = 'http://www.google.co.uk'
-
 
 class googleWeather:
     def __init__(self, location="Wilkesley", postcode="SY13 4BB", lang="en-gb", expires=60, get_icons=True):
