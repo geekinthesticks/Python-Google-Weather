@@ -242,3 +242,16 @@ class googleWeather:
 
         return self.forecast
 
+if __name__ == '__main__':
+        banner = '\'m\' is a googleWeather instance.'
+        try:
+                import readline, rlcompleter
+        except:
+                pass
+        else:
+                readline.parse_and_bind("tab: complete")
+                banner = banner + " TAB completion is available."
+        m = googleWeather()
+        namespace = globals().copy()
+        namespace.update(locals())
+        code.InteractiveConsole(namespace).interact(banner)
