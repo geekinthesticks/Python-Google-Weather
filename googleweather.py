@@ -7,7 +7,9 @@ import time
 
 class googleWeather:
     """
-    
+    Class which returns weather forcasts for a town/post code/zip
+    using the Google weather API. Note that this API is undocumented
+    so use at your own risk!
     """
 
 
