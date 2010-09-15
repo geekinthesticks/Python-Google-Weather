@@ -36,14 +36,16 @@ class googleWeather:
 
     def setLocation(self, location):
         """
-    
+        The location string is purely descriptive and is not required
+        to get forecasts.
         """
 
         self.location = location
 
     def setGetIcons(self, get_icons):
         """
-
+        You may want to use your own icons, rather than Google's.
+        If you don't want to downoad the Google icons, set this to False.
         """
         self.get_icons = get_icons
 
