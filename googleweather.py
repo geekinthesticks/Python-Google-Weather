@@ -6,6 +6,36 @@ import time
 
 
 class googleWeather:
+    """
+    
+    """
+
+
+    # Dictionary mapping Google weather states to Gnome status icons.
+    # In Ubuntu the Gnome icons are found in /usr/share/icons/gnome/32x32/status
+    # fro the 32 pixel icons, in 16x16 for the 16 pixel icons, etc.
+    gnome_weather_icons = {"Chance of Rain" : "weather-showers-scattered.png",
+        "Chance of Snow" : "weather-snow.png",
+        "Chance of Storm" : "weather-storm.png",
+        "Cloudy" : "weather-overcast.png",
+        "Dust" : "weather-fog.png",
+        "Flurries" : "weather-storm.png",
+        "Fog" : "weather-fog.png",
+        "Haze" : "weather-fog.png",
+        "Icy" : "weather-snow.png",
+        "Mist" : "weather-storm.png",
+        "Mostly Cloudy" : "weather-overcast.png",
+        "Mostly Sunny" : "weather-clear.png",
+        "Partly Cloudy" : "weather-few-clouds.png",
+        "Rain" : "weather-showers.png",
+        "Sleet" : "weather-snow.png",
+        "Smoke" : "weather-fog.png",
+        "Snow" : "weather-snow.png",
+        "Storm" : "weather-storm.png",
+        "Thunderstorm" : "weather-storm.png",
+        "Sunny" : "weather-clear.png"}
+
+
     def __init__(self, location="Wilkesley", postcode="SY13 4BB", lang="en-gb", expires=60, get_icons=True):
         """
 
