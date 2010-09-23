@@ -50,12 +50,11 @@ class googleWeather:
         "Sunny" : "weather-clear.png"}
 
 
-    def __init__(self, location="Wilkesley", postcode="SY13 4BB", lang="en-gb", expires=60, get_icons=True):
+    def __init__(self, location="London", lang="en-gb", expires=60, get_icons=True):
         """
-
+        Sets some defaults in case the user doesn't supply any.
         """
         self.location = location
-        self.postcode = postcode
         self.lang = lang
         self.forecast = {}
         self.expires = expires
@@ -67,6 +66,8 @@ class googleWeather:
     def setBaseUrl(self, baseurl):
         """
         The url for calling the Google weather api.
+        If Google moves its weather page you can set
+        the new location using this function.
         """
         self.base_url = baseurl
 
@@ -80,8 +81,8 @@ class googleWeather:
 
     def setLocation(self, location):
         """
-        The location string is purely descriptive and is not required
-        to get forecasts.
+        Location for which you want to get the weather. Google appears to
+        accept a place name e.g. London, or a post/zip code.
         """
 
         self.location = location
@@ -95,7 +96,7 @@ class googleWeather:
 
     def setImageDir(self, imagedir):
         """
-        Sets the directory where images are downloaded.
+        Sets the directory where Google's images are downloaded.
         """
 
         self.imagedir = imagedir
@@ -106,13 +107,6 @@ class googleWeather:
         """
         self.expires = expires
     
-
-    def setPostCode(self, postcode):
-        """
-        The post code/zip code of the location for which you
-        want to retrieve the weather.
-        """
-        self.postcode = postcode
 
     def setLang(self, lang):
         """
@@ -145,7 +139,6 @@ class googleWeather:
         return "%.1f" % (celsius)
 
     # Images.
-    # http://www.google.co.uk/ig/images/weather/sunny.gif
 
     def download_icons(self, icon_list):
         """
@@ -221,13 +214,16 @@ class googleWeather:
         Downloads are cached to avoid repeated queries to Google's
         server. See setCacheExpireTime. The default is 60 mins.
         """
-        location_xml = self.location + ".xml"
+        if not(self.location is None):
+            location_xml = self.location + ".xml"
 
         # Check the local xml file.
 
-       # We need to url encode the query params.
-        params = {'postcode' : self.postcode,
-                  'hl' : self.lang}
+        # We need to url encode the query params.
+        if not(self.location is None):
+            params = {'weather' : self.location,
+
+                      'hl' : self.lang}
         url = self.base_url + urllib.urlencode(params)
 
         if os.path.exists(location_xml):
