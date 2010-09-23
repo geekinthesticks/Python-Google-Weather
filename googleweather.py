@@ -60,7 +60,7 @@ class googleWeather:
         self.forecast = {}
         self.expires = expires
         self.imagedir = "./"
-        self.base_url = "http://www.google.co.uk/ig/api?weather="
+        self.base_url = "http://www.google.co.uk/ig/api?"
         self.google_images_url = 'http://www.google.co.uk'
         self.get_icons = get_icons
 
