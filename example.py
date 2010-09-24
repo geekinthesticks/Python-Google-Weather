@@ -10,7 +10,7 @@ from googleweather import *
 myForecast = googleWeather(location="LL55 4EU", lang="en-gb", expires=60, get_icons=True)
 
 myForecast.setImageLocation("./")
-
+myForecast.filename = "Caernarfon.xml"
 forecast = myForecast.getForecast()
 
 
