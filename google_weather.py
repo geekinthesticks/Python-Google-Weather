@@ -1,25 +1,39 @@
 #!/usr/bin/python
 
-import urllib, os, sys
-from xml.dom import minidom
+import os, sys
+from googleweather import *
 import ConfigParser
 import time
 
-#IMAGES_PATH = '/var/www/vhosts/ian-barton/images/'
-IMAGES_PATH = '/home/ian/devel/python_google_weather/images/'
-GOOGLE_IMAGES_URL = 'http://www.google.co.uk'
-#WEATHER_XML = '~/devel/python_google_weather/google_weather.xml'
+ICON_LIB = "/usr/share/icons/gnome/32x32/status"
+
+weather_icons = {"Chance of Rain" : "weather-showers-scattered.png",
+    "Chance of Snow" : "weather-snow.png",
+    "Chance of Storm" : "weather-storm.png",
+    "Cloudy" : "weather-overcast.png",
+    "Dust" : "weather-fog.png",
+    "Flurries" : "weather-storm.png",
+    "Fog" : "weather-fog.png",
+    "Haze" : "weather-fog.png",
+    "Icy" : "weather-snow.png",
+    "Mist" : "weather-storm.png",
+    "Mostly Cloudy" : "weather-overcast.png",
+    "Mostly Sunny" : "weather-clear.png",
+    "Partly Cloudy" : "weather-few-clouds.png",
+    "Rain" : "weather-showers.png",
+    "Sleet" : "weather-snow.png",
+    "Smoke" : "weather-fog.png",
+    "Snow" : "weather-snow.png",
+    "Storm" : "weather-storm.png",
+    "Thunderstorm" : "weather-storm.png",
+    "Sunny" : "weather-clear.png",
+    "Clear" : "weather-clear.png"}
+ 
+
+
 OUT_FILE = "/var/www"
 BASE_URL = "http://www.google.co.uk/ig/api?weather="
 
-def fahrenheit_to_centigrade(temp):
-    """
-    Celsius = (Temp_in_Fahrenheit - 32) / (9.0/5.0)
-    """
-    celsius = int(temp)
-    celsius = (celsius -32)/ (9.0/5.0)
-
-    return "%.1f" % (celsius)
 
 def read_config_locations():
     """
@@ -40,6 +54,8 @@ def read_config_locations():
 
     for city in cities:
         locations[city[0]] = city[1]
+    print locations
+    
 
     return locations
 
@@ -57,7 +73,7 @@ def read_config_settings():
         sys.exit(2)
 
     config_settings = config.items("settings")
-    print config_settings
+    #print config_settings
 
     settings = {}
 
@@ -76,105 +92,6 @@ def read_config_settings():
 
 
 
-# Images.
-# http://www.google.co.uk/ig/images/weather/sunny.gif
-
-def download_icons(icon_list):
-    """
-    Download weather icons if they are not
-    already cached locally.
-    """
-    for icon in icon_list:
-        (dir, file) = os.path.split(icon)
-        if not os.path.exists(IMAGES_PATH + '%s' % file):
-            urllib.urlretrieve('%s%s' % (GOOGLE_IMAGES_URL, icon), \
-                          '%s%s' % (IMAGES_PATH, file))
-
-
-def parse_forecast_data(dom):
-    city = []
-    days = []
-    low = []
-    high = []
-    conditions = []
-    icons = []
-    forecast_data = {}
-    conditions_list = dom.getElementsByTagName('forecast_conditions')
-    forecast_info = dom.getElementsByTagName('forecast_information')
-
-    for info in forecast_info:
-        city_data = info.getElementsByTagName('city')
-        city.append(city_data[0].getAttribute('data'))
-
-        forecast_data['city'] = city
-
-    for forecast in conditions_list:
-        forecast_days = forecast.getElementsByTagName('day_of_week')
-        forecast_low = forecast.getElementsByTagName('low')
-        forecast_high = forecast.getElementsByTagName('high')
-        forecast_condition = forecast.getElementsByTagName('condition')
-        forecast_icons = forecast.getElementsByTagName('icon')
-
-        for day in forecast_days:
-            days.append(day.getAttribute('data'))
-
-        for low_temp in forecast_low:
-            low.append(fahrenheit_to_centigrade(low_temp.getAttribute('data')))
-
-        for high_temp in forecast_high:
-            high.append(fahrenheit_to_centigrade(high_temp.getAttribute('data')))
-
-        for condition in forecast_condition:
-            conditions.append(condition.getAttribute('data'))
-
-        for dayIcon in forecast_icons:
-            icons.append(dayIcon.getAttribute('data'))
-
-    download_icons(icons)
-
-    forecast_data['days'] = days
-    forecast_data['high'] = high
-    forecast_data['low'] = low
-    forecast_data['conditions'] = conditions
-    forecast_data['icons'] = icons
-
-    return forecast_data
-
-def get_weather(location, postcode):
-    """
-
-    """
-    location_xml = location + ".xml"
-
-    # Check the local xml file.
-
-   # We need to url encode the query params.
-    params = {'postcode' : postcode}
-    url = BASE_URL + urllib.urlencode(params)
-
-    if os.path.exists(location_xml):
-        # Check its time stamp.
-        statinfo = os.stat(location_xml)
-        # file_time = time.localtime(statinfo.st_mtime)
-
-        # Compare file time to current time.
-        # If it's more than 4 hrs old grab a new forecast.
-
-        if (time.mktime(time.localtime()) > (statinfo.st_mtime + (4*3600))):
-            print 'File too old:', location_xml
-            # Open the url and save to a file.
-            urllib.urlretrieve(url, location_xml)
-            print "Getting: %s" % (url)
-
-    else:
-        urllib.urlretrieve(url, location_xml)
-        print "Getting: %s" % (url)
-
-    dom = minidom.parse(location_xml)
-    forecast_data = parse_forecast_data(dom)
-    forecast_data['location'] = location
-
-    return forecast_data
 
 def create_html(locations, settings):
     """
@@ -184,14 +101,24 @@ def create_html(locations, settings):
 
     forecast_data_list = []
     fout = open(settings['html'], "w")
+    myWeather = googleWeather()
     for location in locations:
-        forecast_data_list.append(get_weather(location, locations[location]))
+        #print "Location: ", location
+        myWeather.setLocation(location)
+        myWeather.setPostCode(locations[location])
+        myWeather.setImageLocation('/home/ian/devel/python_google_weather/images/')
+        forecast = myWeather.getForecast()
+        forecast_data_list.append(forecast)
+
+        #forecast_data_list.append(get_weather(location, locations[location]))
 
     # Create html file.
     for city in forecast_data_list:
+        print "City: ", city
         fout.write('<table border="1">')
         fout.write('<tr>')
         fout.write( '<h3>%s</h3>\n' % (city['location']))
+        
         for i in range(len(city['days'])):
             # icons
             (path, icon) = os.path.split(city['icons'][i])
@@ -201,8 +128,8 @@ def create_html(locations, settings):
             fout.write( "%s<br/> <ul> <li>High: %s</li> <li>Low: %s</li> <li>Conditions: %s</li> </ul>\n" % (city['days'][i], city['high'][i], city['low'][i], city['conditions'][i]) )
             fout.write('</td>')
 
-    fout.write('</tr>')
-    fout.write('</table>\n')
+        fout.write('</tr>')
+        fout.write('</table>\n')
 
 
     fout.close()
@@ -212,14 +139,37 @@ def main():
     locations = read_config_locations()
     settings = read_config_settings()
 
+    myWeather = googleWeather()
+
     forecast_data_list = []
-    print "Locations: ", locations
+    forecast = []
+    xoffset = 0
+    yoffset = 34
+
+    #print "Locations: ", locations
     for location in locations:
-        forecast_data_list.append(get_weather(location, locations[location]))
+        myWeather.setLocation(location)
+        myWeather.setPostCode(locations[location])
+        myWeather.setImageLocation('/home/ian/devel/python_google_weather/images/')
+        forecast = myWeather.getForecast()
+        #forecast_data_list.append(forecast)
+        print "City: ", forecast['city'][0]
+        # print forecast
+        
+        for i, day in enumerate(forecast['days']):
+            yoffset = yoffset + 34
+            #print weather_icons[forecast['conditions'][i]]
+            icon = ICON_LIB + "/"  + weather_icons[forecast['conditions'][i]]
+            #print icon
+            print "${color yellow} ${offset 36}%s: High: %s Low: %s ${image %s -p %s,%s}" % (day, forecast['high'][i], forecast['low'][i], icon, xoffset, yoffset)
+        print "\n"
 
 
-    create_html(locations, settings)
-    print settings
+        #forecast_data_list.append(myWeather.getForecast(location, locations[location]))
+
+
+    #create_html(locations, settings)
+    #print settings
     #for setting in settings:
     #    print setting
     #print forecast_data
