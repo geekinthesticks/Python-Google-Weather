@@ -63,12 +63,23 @@ class googleWeather:
         self.google_images_url = 'http://www.google.co.uk'
         self.get_icons = get_icons
         self.debug = False
+        self.filename = ""
 
     def setDebugMode(self, debug):
         """
         If this is true various status information will be printed.
         """
         self.debug = debug
+
+    def setFilename(self, filename):
+        """
+        Sets the name of the downloaded xml file with the weather
+        information. If this is not specified it defaults to
+        location.xml where location is the weather= parameter in
+        the query string.
+        """
+
+        self.filename = filename
 
     def setBaseUrl(self, baseurl):
         """
@@ -225,8 +236,10 @@ class googleWeather:
         Downloads are cached to avoid repeated queries to Google's
         server. See setCacheExpireTime. The default is 60 mins.
         """
-        if not(self.location is None):
+        if len(self.filename) == 0:
             location_xml = self.location + ".xml"
+        else:
+            location_xml = self.filename
 
         # Check the local xml file.
 
