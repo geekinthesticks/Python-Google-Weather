@@ -62,6 +62,13 @@ class googleWeather:
         self.base_url = "http://www.google.co.uk/ig/api?"
         self.google_images_url = 'http://www.google.co.uk'
         self.get_icons = get_icons
+        self.debug = False
+
+    def setDebugMode(self, debug):
+        """
+        If this is true various status information will be printed.
+        """
+        self.debug = debug
 
     def setBaseUrl(self, baseurl):
         """
@@ -125,6 +132,8 @@ class googleWeather:
         cotaining your own images.
         """
         self.imagedir = directory
+        if debug:
+            print "Downloaded images will be saved to: ", directory
 
     def fahrenheit_to_centigrade(self, temp):
         """
@@ -148,6 +157,8 @@ class googleWeather:
         for icon in icon_list:
             (dir, file) = os.path.split(icon)
             if not os.path.exists(self.imagedir + '%s' % file):
+                if debug:
+                    print "Retrieving icon: %s" % (icon)
                 urllib.urlretrieve('%s%s' % (self.google_images_url, icon), \
                               '%s%s' % (self.imagedir, file))
 
@@ -235,14 +246,16 @@ class googleWeather:
             # If it's more than self.expires hours old grab a new forecast.
 
             if (time.mktime(time.localtime()) > (statinfo.st_mtime + (60 * self.expires))):
-                print 'File too old:', location_xml
+                if self.debug:
+                    print 'File too old:', location_xml
                 # Open the url and save to a file.
                 urllib.urlretrieve(url, location_xml)
                 print "Getting: %s" % (url)
 
         else:
             urllib.urlretrieve(url, location_xml)
-            print "Getting: %s" % (url)
+            if self.debug:
+                print "Getting: %s" % (url)
 
         dom = minidom.parse(location_xml)
         self.forecast = self.parse_forecast_data(dom)
