@@ -1,7 +1,7 @@
 [locations]
-Wilkesley = "SY13 4BB"
-Capel_Curig = "LL24 0EN"
+Wilkesley = SY13 4BB
+Capel Curig = LL24 0EN
 
 [settings]
 images = "/home/ian/devel/python_google_weather/images"
-html = "forecast.html"
+html = forecast.html
