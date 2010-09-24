@@ -132,7 +132,7 @@ class googleWeather:
         cotaining your own images.
         """
         self.imagedir = directory
-        if debug:
+        if self.debug:
             print "Downloaded images will be saved to: ", directory
 
     def fahrenheit_to_centigrade(self, temp):
@@ -157,7 +157,7 @@ class googleWeather:
         for icon in icon_list:
             (dir, file) = os.path.split(icon)
             if not os.path.exists(self.imagedir + '%s' % file):
-                if debug:
+                if self.debug:
                     print "Retrieving icon: %s" % (icon)
                 urllib.urlretrieve('%s%s' % (self.google_images_url, icon), \
                               '%s%s' % (self.imagedir, file))
